@@ -2,7 +2,7 @@
 set -e
 set -u
 name=kafka
-version=0.7.2-incubating
+version=0.8.0
 description="Apache Kafka is a distributed publish-subscribe messaging system."
 url="https://kafka.apache.org/"
 arch="all"
@@ -10,7 +10,7 @@ section="misc"
 license="Apache Software License 2.0"
 package_version="-1"
 src_package="kafka-${version}-src.tgz"
-download_url="http://mirrors.sonic.net/apache/incubator/kafka/kafka-${version}/${src_package}"
+download_url="http://apache.cs.utah.edu/kafka/${version}/${src_package}"
 origdir="$(pwd)"
 
 #_ MAIN _#
