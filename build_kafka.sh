@@ -1,55 +1,95 @@
 #!/bin/bash
 set -e
 set -u
-name=kafka
-version=0.8.0
-description="Apache Kafka is a distributed publish-subscribe messaging system."
-url="https://kafka.apache.org/"
-arch="all"
-section="misc"
-license="Apache Software License 2.0"
-package_version="-betable1"
-src_package="kafka-${version}-src.tgz"
-download_url="http://apache.cs.utah.edu/kafka/${version}/${src_package}"
-origdir="$(pwd)"
 
-#_ MAIN _#
-rm -rf ${name}*.deb
-if [[ ! -f "${src_package}" ]]; then
-  wget ${download_url}
+PKG_NAME="kafka"
+VERSION="0.8.0"
+DESCRIPTION="Apache Kafka is a distributed publish-subscribe messaging system."
+URL="https://kafka.apache.org/"
+ARCH="all"
+SECTION="misc"
+LICENSE="Apache Software License 2.0"
+SRC_PACKAGE="kafka-${VERSION}-src.tgz"
+DOWNLOAD_URL="http://apache.cs.utah.edu/kafka/${VERSION}/${SRC_PACKAGE}"
+ORIG_DIR="$(pwd)"
+BUILD_VERSION=
+
+usage() {
+    echo "Usage: $0 -b \"<build version>\" -h"
+    echo "    -h Prints this message"
+    echo "    -b Build version string, ex: ubuntu1"
+}
+
+while getopts ":b:h" NAME; do
+    case "$NAME" in
+        b)
+            BUILD_VERSION=${OPTARG}
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unkown option: $OPTARG"
+            echo ""
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+if [ "x$BUILD_VERSION" = "x" ]; then
+    echo "No build version was supplied"
+    echo ""
+    usage
+    exit 1
 fi
+
+rm -rf "${PKG_NAME}*.deb"
+if [[ ! -f "$SRC_PACKAGE" ]]; then
+    wget "$DOWNLOAD_URL"
+fi
+
 mkdir -p tmp && pushd tmp
 rm -rf kafka
+
 mkdir -p kafka
 cd kafka
+
 mkdir -p build/usr/lib/kafka
 mkdir -p build/etc/default
 mkdir -p build/etc/init
 mkdir -p build/etc/kafka
 
-cp ${origdir}/kafka-broker.default build/etc/default/kafka-broker
-cp ${origdir}/kafka-broker.upstart.conf build/etc/init/kafka-broker.conf
+cp "${ORIG_DIR}/kafka-broker.default" "build/etc/default/kafka-broker"
+cp "${ORIG_DIR}/kafka-broker.upstart.conf" "build/etc/init/kafka-broker.conf"
 
-tar zxf ${origdir}/${src_package}
-cd kafka-${version}-src
+tar zxf "${ORIG_DIR}/${SRC_PACKAGE}"
+cd "kafka-${VERSION}-src"
+
 ./sbt update
 ./sbt package
+./sbt assembly-package-dependency
+
+patch -p0 < "${ORIG_DIR}/kafka-bin.patch"
+
 mv config/log4j.properties config/server.properties ../build/etc/kafka
 mv * ../build/usr/lib/kafka
 cd ../build
 
 fpm -t deb \
-    -n ${name} \
-    -v ${version}${package_version} \
-    --description "${description}" \
-    --url="{$url}" \
-    -a ${arch} \
-    --category ${section} \
+    -n "$PKG_NAME" \
+    -v "${VERSION}-${BUILD_VERSION}" \
+    --description "$DESCRIPTION" \
+    --url="$URL" \
+    -a "$ARCH" \
+    --category "$SECTION" \
     --vendor "" \
-    --license "${license}" \
+    --license "$LICENSE" \
     -m "${USER}@localhost" \
     --prefix=/ \
     -s dir \
     -- .
-mv kafka*.deb ${origdir}
+
+mv kafka*.deb "$ORIG_DIR"
 popd
