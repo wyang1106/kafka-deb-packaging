@@ -8,7 +8,7 @@ url="https://kafka.apache.org/"
 arch="all"
 section="misc"
 license="Apache Software License 2.0"
-package_version="-1"
+package_version="-betable1"
 src_package="kafka-${version}-src.tgz"
 download_url="http://apache.cs.utah.edu/kafka/${version}/${src_package}"
 origdir="$(pwd)"
@@ -26,7 +26,6 @@ mkdir -p build/usr/lib/kafka
 mkdir -p build/etc/default
 mkdir -p build/etc/init
 mkdir -p build/etc/kafka
-mkdir -p build/var/log/kafka
 
 cp ${origdir}/kafka-broker.default build/etc/default/kafka-broker
 cp ${origdir}/kafka-broker.upstart.conf build/etc/init/kafka-broker.conf
