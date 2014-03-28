@@ -3,14 +3,14 @@ set -e
 set -u
 
 PKG_NAME="kafka"
-VERSION="0.8.0"
+VERSION="0.8.1"
 DESCRIPTION="Apache Kafka is a distributed publish-subscribe messaging system."
 URL="https://kafka.apache.org/"
 ARCH="all"
 SECTION="misc"
 LICENSE="Apache Software License 2.0"
 SRC_PACKAGE="kafka-${VERSION}-src.tgz"
-DOWNLOAD_URL="http://apache.cs.utah.edu/kafka/${VERSION}/${SRC_PACKAGE}"
+DOWNLOAD_URL="https://dist.apache.org/repos/dist/release/kafka/${VERSION}/${SRC_PACKAGE}"
 ORIG_DIR="$(pwd)"
 BUILD_VERSION=
 
