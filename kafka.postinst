@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+# Create a symlink to kafka config in kafka distribution folder
+if [ ! -e "/opt/kafka/config" ]; then
+    ln -s /etc/kafka /opt/kafka/config
+fi
+
+# Create a directory to store working data
+#mkdir -p /var/run/kafka
+#chown -R kafka:kafka /var/run/kafka
+
+# Create a directory for logs
+#chown -R kafka:kafka /var/log/kafka
+
+# Set permissions on directories
+/bin/chown -R kafka:kafka /opt/kafka /var/log/kafka
+
+#DEBHELPER#
+
+[ "$1" = "configure" ] && ldconfig
+
+exit 0

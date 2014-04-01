@@ -61,12 +61,13 @@ function bootstrap() {
     mkdir -p kafka
     cd kafka
 
-    mkdir -p build/usr/lib/kafka
+    mkdir -p build/opt/kafka
+    mkdir -p build/var/run/kafka
     mkdir -p build/etc/default
     #mkdir -p build/etc/init
     mkdir -p build/etc/init.d
-    mkdir -p build/etc/kafka
     mkdir -p build/var/log/kafka
+    # used a link to /opt/kafka/config instead of mkdir -p build/etc/kafka
 }
 
 function build() {
@@ -97,25 +98,20 @@ function build_from_binary(){
     wget https://dist.apache.org/repos/dist/release/kafka/0.8.1/${BINARY_PACKAGE}.tgz
     tar -xzf ${BINARY_PACKAGE}.tgz
 
-    cd ${BINARY_PACKAGE}
-
-    cp -rp config/* ../build/etc/kafka
-
-    mv config config.old
-    mv * ../build/usr/lib/kafka
-    cd ../
+    mv ${BINARY_PACKAGE}/* build/opt/kafka
+    # we don't need windows binaries in deb package
+    rm -r build/opt/kafka/bin/windows
 }
 
 function apply_configs(){
+    cp "${ORIG_DIR}/etc/default/kafka" "build/etc/default/kafka"
 
-    cp "${ORIG_DIR}/kafka-broker.default" "build/etc/default/kafka-broker"
-    cp "${ORIG_DIR}/kafka-broker.postinst" "build/kafka-broker.postinst"
-    
     # Service
-    cp "${ORIG_DIR}/kafka-broker.init-script.sh" "build/etc/init.d/kafka"
+    cp "${ORIG_DIR}/etc/init.d/kafka" "build/etc/init.d/kafka"
+    # TODO: Ubuntu option?
     #cp "${ORIG_DIR}/kafka-broker.upstart.conf" "build/etc/init/kafka-broker.conf"
 
-    cp ${ORIG_DIR}/log4j.properties build/etc/kafka
+    cp ${ORIG_DIR}/log4j.properties build/opt/kafka/config/
 }
 
 function mkdeb() {
@@ -131,9 +127,11 @@ function mkdeb() {
     --category "$SECTION" \
     --vendor "" \
     --license "$LICENSE" \
-    --after-install ./kafka-broker.postinst \
+    --before-install ${ORIG_DIR}/kafka.preinst \
+    --after-install ${ORIG_DIR}/kafka.postinst \
+    --after-remove ${ORIG_DIR}/kafka.postrm \
     -m "${USER}" \
-    --config-files /etc/default/kafka-broker \
+    --config-files /etc/default/kafka \
     --config-files /etc/init.d/kafka \
     --prefix=/ \
     -s dir \

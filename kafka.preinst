@@ -1,0 +1,29 @@
+#!/bin/sh
+set -e
+
+# if there is no kafka user - create one, 
+# home folder creation is managed by packet
+# TODO: questionable if --ingroup parameter should be used instead of --group
+if ! getent passwd kafka > /dev/null; then
+
+  echo "Creating kafka user account and group"
+  addgroup --quiet kafka
+
+  adduser --system --quiet --home /var/run/kafka --no-create-home \
+    --shell /bin/bash --ingroup kafka \
+    --gecos "Kafka message broker" kafka
+fi
+
+echo "Making sure kafka user is unlocked"
+if [ -f /etc/shadow ]; then
+  usermod -U -e '' kafka
+else
+  usermod -U kafka
+fi
+
+#DEBHELPER#
+
+[ "$1" = "configure" ] && ldconfig
+
+exit 0
+

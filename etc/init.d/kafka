@@ -1,10 +1,10 @@
 #! /bin/sh
-# /etc/init.d/kafka-broker: start the kafka daemon.
+# /etc/init.d/kafka: start the kafka daemon.
 
 # chkconfig: 345 80 20
-# description: kafka-broker
+# description: Kafka message broker service 
 
-HOME=/usr/lib/kafka/
+HOME=/opt/kafka/
 USER=kafka
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin
@@ -63,7 +63,7 @@ start() {
   ulimit -c unlimited
   echo -n "Starting $prog: "
   cd $HOME
-  nohup su $USER -c "./bin/kafka-server-start.sh /etc/kafka/server.properties </dev/null 2>&1 | cronolog ./log/kafka/kafka.%Y%m%d.log 2>&1" </dev/null >/dev/null 2>&1 &
+  nohup su $USER -c "./bin/kafka-server-start.sh /etc/kafka/server.properties </dev/null 2>&1 | cronolog /var/log/kafka/kafka.%Y%m%d.log 2>&1" </dev/null >/dev/null 2>&1 &
 
   RETVAL=$?
   [ $RETVAL -eq 0 ] && echo_success
