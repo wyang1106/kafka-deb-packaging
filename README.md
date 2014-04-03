@@ -18,20 +18,22 @@ Kafka user management
 According to debian guidelines kafka user will not be dropped on package deletion - only locked (postrm script)
 On installation of a package user will be created, if not exists. If exists - unlocked.
 
-Kafka home folder
+Kafka folders
 ---
 
-would be thee folder where the kafka will operate (/var/run/kafka)
+Pid storage: `/var/run/*.pid`
+Kafka working path (message logs): `/var/lib/kafka`, also home for kafka user...
+Kafka binaries path: `/opt/kafka`
+Kafka configuration: `/etc/kafka` linked to `/etc/kafka/config`
+Kafka init script (debian): `/etc/init.d/kafka`
+Kafka "default" : `/etc/default/kafka` 
 
-
-General packaging
+Question about binary locations
 ---
 
 Following [Filesystem Hierarchy Standard](http://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard)  [here](http://www.pathname.com/fhs/): `/opt` is for programs that are not packaged and don't follow the standards. You'd just put all the libraries there together with the program.
 
 Some other scripts on github have kafka packaged to /usr/lib/kafka (and they have bin, and libs inside)...
 
-Yet, I find this wrong, but will reuse exsiting solution. YET. :-)
-Later, maybe, this packaging script would be an atempt to pack kafka in right places.
-
+However, it seems to be wrong assumption, so this scripts packs the kafka into /opt/kafka
 

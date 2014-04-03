@@ -61,12 +61,13 @@ function bootstrap() {
     mkdir -p kafka
     cd kafka
 
-    mkdir -p build/opt/kafka
-    mkdir -p build/var/run/kafka
+    mkdir -p build/opt/kafka     # for package
+    mkdir -p build/var/run/kafka # for pid
+    mkdir -p build/var/lib/kafka # for kafka messages storage
     mkdir -p build/etc/default
-    #mkdir -p build/etc/init
-    mkdir -p build/etc/init.d
-    mkdir -p build/var/log/kafka
+    #mkdir -p build/etc/init     # for upstart conf on ubuntu
+    mkdir -p build/etc/init.d    # for init script on debian
+    mkdir -p build/var/log/kafka # for log files
     # used a link to /opt/kafka/config instead of mkdir -p build/etc/kafka
 }
 
@@ -100,7 +101,7 @@ function build_from_binary(){
 
     mv ${BINARY_PACKAGE}/* build/opt/kafka
     # we don't need windows binaries in deb package
-    rm -r build/opt/kafka/bin/windows
+    # symbolic link to configs is created in postinst script    
 }
 
 function apply_configs(){
@@ -112,6 +113,7 @@ function apply_configs(){
     #cp "${ORIG_DIR}/kafka-broker.upstart.conf" "build/etc/init/kafka-broker.conf"
 
     cp ${ORIG_DIR}/log4j.properties build/opt/kafka/config/
+    ln -s "build/opt/kafka/config" "build/etc/kafka"
 }
 
 function mkdeb() {

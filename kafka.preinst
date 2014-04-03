@@ -9,7 +9,7 @@ if ! getent passwd kafka > /dev/null; then
   echo "Creating kafka user account and group"
   addgroup --quiet kafka
 
-  adduser --system --quiet --home /var/run/kafka --no-create-home \
+  adduser --system --quiet --home /opt/kafka --no-create-home \
     --shell /bin/bash --ingroup kafka \
     --gecos "Kafka message broker" kafka
 fi
