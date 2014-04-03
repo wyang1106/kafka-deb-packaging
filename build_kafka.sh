@@ -136,6 +136,7 @@ function mkdeb() {
     --config-files /etc/default/kafka \
     --config-files /etc/init.d/kafka \
     --prefix=/ \
+    -d "default-jre" \
     -s dir \
     -- .
   mv kafka*.deb ${ORIG_DIR}
