@@ -62,13 +62,13 @@ function bootstrap() {
     cd kafka
 
     mkdir -p build/opt/kafka     # for package
-    mkdir -p build/var/run/kafka # for pid
     mkdir -p build/var/lib/kafka # for kafka messages storage
     mkdir -p build/etc/default
     #mkdir -p build/etc/init     # for upstart conf on ubuntu
     mkdir -p build/etc/init.d    # for init script on debian
     mkdir -p build/var/log/kafka # for log files
     # used a link to /opt/kafka/config instead of mkdir -p build/etc/kafka
+    # used /var/run/ to store kafka.pid
 }
 
 function build() {
@@ -113,7 +113,8 @@ function apply_configs(){
     #cp "${ORIG_DIR}/kafka-broker.upstart.conf" "build/etc/init/kafka-broker.conf"
 
     cp ${ORIG_DIR}/log4j.properties build/opt/kafka/config/
-    ln -s "build/opt/kafka/config" "build/etc/kafka"
+    
+    # symlink from /etc/kafka -> /opt/kafka/config is made in postinst
 }
 
 function mkdeb() {

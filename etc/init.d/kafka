@@ -9,7 +9,7 @@
 USER=kafka
 BASEDIR="/opt/kafka"
 LOGDIR="/var/log/kafka"
-PIDFILE="${LOGDIR}/broker.pid"
+PIDFILE="/var/run/kafka.pid"
 
 START="${BASEDIR}/bin/kafka-server-start.sh"
 STOP="${BASEDIR}/bin/kafka-server-stop.sh"
@@ -22,8 +22,6 @@ NAME=kafka
 DESC="Kafka daemon"
 
 RETVAL=0
-
-LOGDIR="/var/log/kafka"
 
 if [ ! -d "${LOGDIR}" ]; then
     echo "${0}: missing log directory: ${LOGDIR}"
