@@ -22,9 +22,9 @@ Kafka folders
 ---
 
 Pid storage: `/var/run/*.pid`
-Kafka working path (message logs): `/var/lib/kafka`, also home for kafka user...
+Kafka working path (message logs): `/var/lib/kafka`, also this is $HOME for kafka user...
 Kafka binaries path: `/opt/kafka`
-Kafka configuration: `/etc/kafka` linked to `/etc/kafka/config`
+Kafka configuration: `/etc/kafka` linked to `/opt/kafka/config`
 Kafka init script (debian): `/etc/init.d/kafka`
 Kafka "default" : `/etc/default/kafka` 
 
@@ -37,3 +37,12 @@ Some other scripts on github have kafka packaged to /usr/lib/kafka (and they hav
 
 However, it seems to be wrong assumption, so this scripts packs the kafka into /opt/kafka
 
+Logging
+---
+
+Kafka is using slf4j, and there is log4j config in /opt/kafka/config
+
+Distribution support
+---
+
+Yet this script was developed with LSB in mind, but tested only under debian 7 (can also work on other dists that support LSB and init system).

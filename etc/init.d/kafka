@@ -1,230 +1,141 @@
 #! /bin/sh
-# /etc/init.d/kafka: Init script for the kafka daemon.
+### BEGIN INIT INFO
+# Provides:          kafka 
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Kafka Message Broker
+# Description:       This file should be used to construct scripts to be
+#                    placed in /etc/init.d.
+### END INIT INFO
+# Do NOT "set -e"
 
-# chkconfig: 345 80 20
-# description: Kafka message broker service 
-
-. /lib/lsb/init-functions
-
-ECHO="/bin/echo"
+# PATH should only include /usr/* if it runs after the mountnfs.sh script
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin
+DESC="Kafka Message Broker"
+NAME=kafka
 USER=kafka
+
+PIDFILE=/var/run/$NAME.pid
+
+# Read configuration variable file if it is present
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+CONFIG="/etc/kafka/server.properties"
+# TODO: kafka opts
+#KAFKA_OPTS="-Xmx512M -server  -Dlog4j.configuration=file:/etc/kafka/log4j.properties"
+#export KAFKA_OPTS
+
 BASEDIR="/opt/kafka"
-LOGDIR="/var/log/kafka"
-PIDFILE="/var/run/kafka.pid"
 
 START="${BASEDIR}/bin/kafka-server-start.sh"
 STOP="${BASEDIR}/bin/kafka-server-stop.sh"
-CONFIG=/etc/kafka/server.properties
 
-PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin
+KAFKA_HOME=/var/lib/kafka
 
-NAME=kafka
-DESC="Kafka daemon"
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
 
-RETVAL=0
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+. /lib/lsb/init-functions
 
-if [ ! -d "${LOGDIR}" ]; then
-    echo "${0}: missing log directory: ${LOGDIR}"
-    exit 1
-fi
-
-# detect the distribution:
-if [ -f /etc/redhat-release -o -f /etc/fedora-release ] ; then
-  DISTRIBUTION="redhat"
-elif [ -f /etc/SuSE-release ] ; then
-  DISTRIBUTION="suse"
-elif [ -f /etc/debian_version ] ; then
-  DISTRIBUTION="debian"
-else
-  DISTRIBUTION="debian"
-fi
-
-# Source function library.
-[ "$DISTRIBUTION" = "redhat" ] && . /etc/init.d/functions
-[ "$DISTRIBUTION" = "suse" ] && . /etc/rc.status
-
-if [ "$DISTRIBUTION" = "suse" ] ; then
-  echo_success() {
-    rc_status -v
-  }
-  echo_failure() {
-    rc_status -v
-  }
-  success() {
-    echo_success
-  }
-  failure() {
-    echo_success
-  }
-elif [ "$DISTRIBUTION" = "debian" ] ; then
-  echo_success() {
-    echo ok
-  }
-  echo_failure() {
-    echo failed
-  }
-  success() {
-    echo_success
-  }
-  failure() {
-    echo_success
-  }
-fi
-
-PROCESS_IDS () {
-    ppid=$(cat $PIDFILE)
-    pids=""
-    while [ "${ppid}" ] ; do
-        if [ -n "${pids}" ] ; then
-            pids="${pids} ${ppid}"
-        else
-            pids="${ppid}"
-        fi
-        ppid=$(ps --ppid "${ppid}" -o pid h | sed 's:^ *::')
-    done
-    echo "${pids}"
-}
-
+#
+# Function that starts the daemon/service
+#
 do_start() {
-  #ulimit -n 65536
-  #ulimit -s 10240
-  #ulimit -c unlimited
-  #echo -n "Starting $prog: "
-  #cd $HOME
-  #nohup su $USER -c "./bin/kafka-server-start.sh /etc/kafka/server.properties </dev/null 2>&1 | cronolog /var/log/kafka/kafka.%Y%m%d.log 2>&1" </dev/null >/dev/null 2>&1 &
+  # Return
+  #   0 if daemon has been started
+  #   1 if daemon was already running
+  #   2 if daemon could not be started
 
-  #RETVAL=$?
-  #[ $RETVAL -eq 0 ] && echo_success
-  #[ $RETVAL -ne 0 ] && echo_failure
-  #  echo
-  #return $RETVAL
-  echo  -n "Starting kafka ... "
-    if [ -f "${PIDFILE}" ]; then
-      PID=$(cat "${PIDFILE}")
-      if kill -0 "{$PID}" > /dev/null 2>&1; then
-         echo "kafka already running as process ${PID} per PID file ${PIDFILE}". 
-         exit 0
-      fi
-    fi
-
-    #nohup su $USER -c "${START} ${CONFIG} </dev/null 2>&1 | cronolog ${LOGDIR}/kafka.%Y%m%d.log 2>&1" </dev/null >/dev/null 2>&1 &
-    #daemon --user "${USER}" "${START}" "${CONFIG}" > ${LOGDIR}/kafka.log 2>&1 < /dev/null &
-    start-stop-daemon --chuid $USER --start --quiet --background --pidfile $PIDFILE --exec $START $CONFIG || return 2
-    
-    if [ $? -eq 0 ]
-    then
-      if /bin/echo -n $! > "${PIDFILE}"
-      then
-        sleep 2
-        PIDS=$(PROCESS_IDS)
-        COUNT=$(ps -o args ${PIDS} | grep -v COMMAND | grep -c kafka)
-        if [ "${COUNT}" != 0 ]; then
-	    echo "started"
-	    exit 0;
-	else
-	    echo "failed"
-	    exit 1;
-	fi
-      else
-        echo "failed to write ${PIDFILE}"
-        exit 1
-      fi
-    else
-      echo "failed"
-      exit 1
-    fi
+  start-stop-daemon --start --verbose -m -b --chuid $USER --chdir $KAFKA_HOME --pidfile $PIDFILE --exec $START $CONFIG --test > /dev/null \
+    || return 1
+  
+  start-stop-daemon --start --verbose -m -b --chuid $USER --chdir $KAFKA_HOME --pidfile $PIDFILE --exec $START $CONFIG \
+    || return 2
 }
 
-do_stop() {
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
   # Return
   #   0 if daemon has been stopped
   #   1 if daemon was already stopped
   #   2 if daemon could not be stopped
   #   other if a failure occurred
-
-  echo "Stopping $NAME: "
-  ps -ef | grep 'kafka' | awk '{print $2}' | xargs kill -9
-  echo "Stopped $NAME."
-  
-
-
-  # echo -n "Stopping kafka ... "
-  #  if [ ! -f "${PIDFILE}" ]
-  #  then
-  #    echo "no kafka to stop (could not find file ${PIDFILE})"
-  #  else
-  #    PIDS=$(PROCESS_IDS)
-  #    kill ${PIDS}
-  #    sleep 4;
-  #    COUNT=$(ps -o args ${PIDS} | grep -v COMMAND | grep -c kafka)
-  #    if [ "${COUNT}" != 0 ]; then
-  #      kill -9 ${PIDS} 2>/dev/null
-  #      sleep 4;
-  #      COUNT=$(ps -o args ${PIDS} | grep -v COMMAND | grep -c kafka)
-  #    fi
-  #    if [ "${COUNT}" = 0 ]; then
-  #      echo "stopped";
-  #      rm "${PIDFILE}"
-  #      exit 0;
-  #    else
-  #      echo "failed";
-  #      exit 1;
-  #    fi
-  #  fi
-  #  exit 0
-}
-
-do_reload() {
-  do_stop
-  sleep 2
-  do_start
-}
-
-do_restart() {
-  do_stop
-  sleep 2
-  do_start
-}
-
-do_status() {
- if [ ! -f "${PIDFILE}" ]
-    then
-      echo "no kafka to poll (could not find file ${PIDFILE})"
-      exit 1;
-    else
-      PIDS=$(PROCESS_IDS);
-      COUNT=$(ps -o args ${PIDS} | grep -v COMMAND | grep -c kafka)
-      if [ "${COUNT}" = 0 ]; then
-        echo "Kafka not running"
-      else
-         echo "Kafka running as processes ${PIDS} per PID file ${PIDFILE}".
-      fi
-    fi
-    exit 0;
+  start-stop-daemon --stop  --retry=TERM/30/KILL/5 --pidfile $PIDFILE
+ 
+  RETVAL="$?"
+  [ "$RETVAL" = 2 ] && return 2
+ 
+  # Many daemons don't delete their pidfiles when they exit.
+  rm -f $PIDFILE
+  return "$RETVAL"
 }
 
 case "$1" in
 start)
+  [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
   do_start
+  case "$?" in
+    0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+    2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+  esac
   ;;
 
 stop)
+  [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
   do_stop
+  case "$?" in
+    0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+    2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+  esac
   ;;
 
-reload)
-  do_reload
-  ;;
+#reload|force-reload)
+  #
+  # If do_reload() is not implemented then leave this commented out
+  # and leave 'force-reload' as an alias for 'restart'.
+  #
+  #log_daemon_msg "Reloading $DESC" "$NAME"
+  #do_reload
+  #log_end_msg $?
+  #;;
 
-restart)
-	do_restart
+restart|force-reload)
+  #
+  # If the "reload" option is implemented then remove the
+  # 'force-reload' alias
+  #
+  log_daemon_msg "Restarting $DESC" "$NAME"
+  do_stop
+  case "$?" in
+    0|1)
+      do_start
+      case "$?" in
+        0) log_end_msg 0 ;;
+        1) log_end_msg 1 ;; # Old process is still running
+        *) log_end_msg 1 ;; # Failed to start
+      esac
+      ;;
+    *)
+      # Failed to stop
+      log_end_msg 1
+      ;;
+  esac
   ;;
   
 status)
-	do_status
+  status_of_proc -p $PIDFILE && exit 0 || exit $?
   ;;
 
 *)
-  echo $"Usage: $0 {start|stop|reload|restart|status}"
+  echo $"Usage: $0 {start|stop|status|restart|force-reload}" >&2
+  exit 3
+  ;;
   
 esac
