@@ -6,6 +6,7 @@
 
 . /lib/lsb/init-functions
 
+ECHO="/bin/echo"
 USER=kafka
 BASEDIR="/opt/kafka"
 LOGDIR="/var/log/kafka"
@@ -13,7 +14,6 @@ PIDFILE="/var/run/kafka.pid"
 
 START="${BASEDIR}/bin/kafka-server-start.sh"
 STOP="${BASEDIR}/bin/kafka-server-stop.sh"
-#CONFIG="${BASEDIR}/config/server.properties"
 CONFIG=/etc/kafka/server.properties
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin
@@ -109,7 +109,7 @@ do_start() {
 
     #nohup su $USER -c "${START} ${CONFIG} </dev/null 2>&1 | cronolog ${LOGDIR}/kafka.%Y%m%d.log 2>&1" </dev/null >/dev/null 2>&1 &
     #daemon --user "${USER}" "${START}" "${CONFIG}" > ${LOGDIR}/kafka.log 2>&1 < /dev/null &
-    start-stop-daemon --start --quiet --background --pidfile $PIDFILE --exec $START $CONFIG || return 2
+    start-stop-daemon --chuid $USER --start --quiet --background --pidfile $PIDFILE --exec $START $CONFIG || return 2
     
     if [ $? -eq 0 ]
     then
