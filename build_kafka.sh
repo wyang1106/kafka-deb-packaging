@@ -13,6 +13,7 @@ SRC_PACKAGE="kafka-${VERSION}-src.tgz"
 DOWNLOAD_URL="https://dist.apache.org/repos/dist/release/kafka/${VERSION}/${SRC_PACKAGE}"
 ORIG_DIR="$(pwd)"
 BUILD_VERSION=
+SCALA_VERSION="2.8.0"
 
 usage() {
     echo "Usage: $0 -b \"<build version>\" -h"
@@ -62,6 +63,7 @@ function bootstrap() {
     cd kafka
 
     mkdir -p build/opt/kafka     # for package
+    mkdir -p build/opt/kafka/libs build/opt/kafka/bin build/opt/kafka/config
     mkdir -p build/var/lib/kafka # for kafka messages storage
     mkdir -p build/etc/default
     #mkdir -p build/etc/init     # for upstart conf on ubuntu
@@ -71,26 +73,33 @@ function bootstrap() {
     # used /var/run/ to store kafka.pid
 }
 
-function build() {
+# gets sources, builds project, forms the ../build, leaves to initial folder after
+function build_from_sources() {
     tar zxf "${ORIG_DIR}/${SRC_PACKAGE}"
-    cd "kafka-${VERSION}-src"
+    pushd "kafka-${VERSION}-src"
 
     # TODO: in new kafka 0.8.1 gradlew is used! -> Update
-    ./sbt update
-    ./sbt package
-    ./sbt assembly-package-dependency
+    ./gradlew -PscalaVersion=${SCALA_VERSION} clean
+    ./gradlew -PscalaVersion=${SCALA_VERSION} jar 
 
     # apply patch with KAFKA_HEAP_OPTS extensibility tweak
-    patch -p0 < "${ORIG_DIR}/kafka-bin.patch"
+    #patch -p0 < "${ORIG_DIR}/kafka-bin.patch"
 
-    cp -rp config/* ../build/etc/kafka
-    mv config config.old
-    cp ${ORIG_DIR}/log4j.properties ../build/etc/kafka
-    # or ?
-    #mv config/log4j.properties config/server.properties ../build/etc/kafka
+    ## populate the /opt/kafka folder structure
+    # libs
+    cp -rp core/build/libs/* ../build/opt/kafka/libs
+    cp -rp core/build/dependant-libs-${SCALA_VERSION}/* ../build/opt/kafka/libs
+    # config
+    cp -rp config ../build/opt/kafka/
+    mv ../build/opt/kafka/config/log4j.properties ../build/opt/kafka/config/log4j.properties.orig
+    cp ${ORIG_DIR}/log4j.properties ../build/opt/kafka/config
+    # bin (we don't need windows binaries)
+    cp bin/*.sh ../build/opt/kafka/bin
 
-    mv * ../build/usr/lib/kafka
-    cd ../build
+    # LICENSE and NOTICE
+    mv LICENSE ../build/opt/kafka/
+    mv NOTICE ../build/opt/kafka
+    popd
 }
 
 function build_from_binary(){
@@ -137,7 +146,7 @@ function mkdeb() {
     --config-files /etc/default/kafka \
     --config-files /etc/init.d/kafka \
     --prefix=/ \
-    -d "default-jre" \
+    -d "openjdk-7-jre" \
     -s dir \
     -- .
   mv kafka*.deb ${ORIG_DIR}
@@ -147,8 +156,8 @@ function mkdeb() {
 function main() {
     cleanup
     bootstrap
-    #build_from_sources
-    build_from_binary
+    build_from_sources
+    #build_from_binary
     apply_configs 
     mkdeb
 }
