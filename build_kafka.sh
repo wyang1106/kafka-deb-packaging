@@ -78,12 +78,13 @@ function build_from_sources() {
     tar zxf "${ORIG_DIR}/${SRC_PACKAGE}"
     pushd "kafka-${VERSION}-src"
 
-    # TODO: in new kafka 0.8.1 gradlew is used! -> Update
     ./gradlew -PscalaVersion=${SCALA_VERSION} clean
-    ./gradlew -PscalaVersion=${SCALA_VERSION} jar 
+    ./gradlew -PscalaVersion=${SCALA_VERSION} jar
 
-    # apply patch with KAFKA_HEAP_OPTS extensibility tweak
-    #patch -p0 < "${ORIG_DIR}/kafka-bin.patch"
+    # KAFKA_HEAP_OPTS is reset to default.
+    # The patch should fix the ./logs creation though.
+    # TODO: fix and apply patch
+    # patch -p0 < "${ORIG_DIR}/kafka-bin.patch"
 
     ## populate the /opt/kafka folder structure
     # libs
@@ -104,13 +105,13 @@ function build_from_sources() {
 
 function build_from_binary(){
     BINARY_PACKAGE=kafka_2.9.2-0.8.1
-    
+
     wget https://dist.apache.org/repos/dist/release/kafka/0.8.1/${BINARY_PACKAGE}.tgz
     tar -xzf ${BINARY_PACKAGE}.tgz
 
     mv ${BINARY_PACKAGE}/* build/opt/kafka
     # we don't need windows binaries in deb package
-    # symbolic link to configs is created in postinst script    
+    # symbolic link to configs is created in postinst script
 }
 
 function apply_configs(){
@@ -122,7 +123,7 @@ function apply_configs(){
     #cp "${ORIG_DIR}/kafka-broker.upstart.conf" "build/etc/init/kafka-broker.conf"
 
     cp ${ORIG_DIR}/log4j.properties build/opt/kafka/config/
-    
+
     # symlink from /etc/kafka -> /opt/kafka/config is made in postinst
 }
 
@@ -158,7 +159,7 @@ function main() {
     bootstrap
     build_from_sources
     #build_from_binary
-    apply_configs 
+    apply_configs
     mkdeb
 }
 
