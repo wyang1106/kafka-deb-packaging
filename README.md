@@ -1,16 +1,7 @@
 kafka-deb-packaging
 ===================
 
-Work in Progress.
-
 Simple debian packaging for Apache Kafka 0.8.1, 
-
-
-kafka-bin.patch contains the following fixes (applied only on source)
-
-- The shell helper scripts are patched to be allow for overriding environment variables set within them
-- The `kafka-run-class.sh` script no longer forcefully creates the log dir it believes should be used
-
 
 Kafka user management
 -----
@@ -21,12 +12,12 @@ On installation of a package user will be created, if not exists. If exists - un
 Kafka folders
 ---
 
-Pid storage: `/var/run/*.pid`
-Kafka working path (message logs): `/var/lib/kafka`, also this is $HOME for kafka user...
-Kafka binaries path: `/opt/kafka`
-Kafka configuration: `/etc/kafka` linked to `/opt/kafka/config`
-Kafka init script (debian): `/etc/init.d/kafka`
-Kafka "default" : `/etc/default/kafka` 
+- Pid storage: `/var/run/*.pid`
+- Kafka working path (message logs): `/var/lib/kafka`, also this is `$HOME` for kafka user...
+- Kafka binaries path: `/opt/kafka`
+- Kafka configuration: `/etc/kafka` linked to `/opt/kafka/config`
+- Kafka init script (debian): `/etc/init.d/kafka`
+- Kafka "default" : `/etc/default/kafka` 
 
 Question about binary locations
 ---
@@ -40,7 +31,7 @@ So, this scripts packs the kafka into `/opt/kafka` (while keeping configs linked
 Logging
 ---
 
-Kafka is using slf4j, and there is log4j config in /opt/kafka/config
+Kafka is using `slf4j`, and there is `log4j` config in `/opt/kafka/config`
 
 Kafka heap optimization:
 ---
