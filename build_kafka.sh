@@ -49,7 +49,7 @@ function build() {
 }
 
 function mkdeb() {
-  /data/jenkins/.rbenv/shims/fpm -t deb \
+  fpm -t deb \
     -n ${name} \
     -v ${version}${package_version} \
     --description "${description}" \
