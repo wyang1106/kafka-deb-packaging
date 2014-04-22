@@ -28,7 +28,7 @@ script
   export KAFKA_LOG4J_OPTS="-Dlog4j.configuration=file:${KAFKA_HOME}/config/log4j.properties"
   export KAFKA_HEAP_OPTS="-Xmx1G -Xms1G"
 
-  if [ "x$ENABLE" = "xyes" ]; then
+  if [ "x$START" = "xyes" ]; then
     exec $KAFKA_HOME/bin/kafka-server-start.sh  $CONFIG_HOME/$KAFKA_CFG_FILE
   fi
 end script
