@@ -14,5 +14,9 @@ if [ ! -e "/usr/lib/kafka/config" ]; then
     ln -s /etc/kafka /usr/lib/kafka/config
 fi
 
+if [ ! -e "/usr/lib/kafka/logs" ]; then
+    ln -s /var/log/kafka /usr/lib/kafka/logs
+fi
+
 mkdir -p /var/run/kafka
 chown -R kafka:kafka /var/run/kafka

@@ -2,20 +2,19 @@
 set -e
 set -u
 name=kafka
-version="0.8.1"
-scala_version="2.10"
+version=${_KVERSION:-"0.8.1"}
+scala_version=${_KSCALAVERSION:-"2.10"}
 description="Apache Kafka is a distributed publish-subscribe messaging system."
 url="https://kafka.apache.org/"
 arch="all"
 section="misc"
 license="Apache Software License 2.0"
-package_version="-1"
+package_version=${_KPKGVERSION:-"-1"}
 src_package="kafka_${scala_version}-${version}.tgz"
 download_url="https://dist.apache.org/repos/dist/release/kafka/${version}/${src_package}"
 origdir="$(pwd)"
 license="Apache Software License 2.0"
 
-#_ MAIN _#
 function cleanup() {
     rm -rf ${name}*.deb
 }
@@ -76,5 +75,4 @@ function main() {
     build
     mkdeb
 }
-
 main
