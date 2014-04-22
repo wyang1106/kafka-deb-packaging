@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+if getent passwd | grep -q kafka; then
+   userdel kafka
+fi
+
+if getent group | grep -q kafka; then
+    groupdel kafka
+fi

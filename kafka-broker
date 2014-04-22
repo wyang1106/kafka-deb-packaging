@@ -29,6 +29,6 @@ script
   export KAFKA_HEAP_OPTS="-Xmx1G -Xms1G"
 
   if [ "x$ENABLE" = "xyes" ]; then
-    exec $KAFKA_HOME/bin/kafka-run-class.sh daemon kafkaServer kafka.Kafka $CONFIG_HOME/$KAFKA_CFG_FILE
+    exec $KAFKA_HOME/bin/kafka-server-start.sh  $CONFIG_HOME/$KAFKA_CFG_FILE
   fi
 end script

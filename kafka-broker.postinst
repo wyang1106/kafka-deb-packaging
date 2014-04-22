@@ -20,3 +20,4 @@ fi
 
 mkdir -p /var/run/kafka
 chown -R kafka:kafka /var/run/kafka
+chown -R kafka:kafka /var/log/kafka

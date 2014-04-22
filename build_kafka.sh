@@ -35,15 +35,18 @@ function bootstrap() {
 }
 
 function build() {
-    cp ${origdir}/kafka-broker.default build/etc/default/kafka-broker
-    cp ${origdir}/kafka-broker.upstart.conf build/etc/init/kafka-broker.conf 
-
+    #cp ${origdir}/kafka-broker.default build/etc/default/kafka-broker
+    #cp ${origdir}/kafka-broker.upstart.conf build/etc/init/kafka-broker.conf
+    
     tar zxf ${origdir}/${src_package}
     cd kafka_${scala_version}-${version}
     cp -rp config/* ../build/etc/kafka
     mv config config.old
     cp ${origdir}/log4j.properties ../build/etc/kafka
     mv * ../build/usr/lib/kafka
+
+    if [ -f ${origdir}/kafka-server-start.sh-${version} ]; then cp ${origdir}/kafka-server-start.sh-${version} ../build/usr/lib/kafka/bin/kafka-server-start.sh;fi
+
     cd ../build
 }
 
@@ -58,9 +61,11 @@ function mkdeb() {
     --vendor "" \
     --license "${license}" \
     --after-install ../../../kafka-broker.postinst \
+    --after-remove  ../../../kafka-broker.postrm \
+    --before-remove ../../../kafka-broker.prerm \
     -m "${USER}@${HOSTNAME}" \
-    --config-files /etc/default/kafka-broker \
-    --config-files /etc/init/kafka-broker.conf \
+    --deb-default ../../..//kafka-broker.default \
+    --deb-upstart ../../..//kafka-broker \
     --license "${license}" \
     --prefix=/ \
     -s dir \
