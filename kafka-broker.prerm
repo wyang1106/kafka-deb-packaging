@@ -2,7 +2,7 @@
 
 set -e
 
-service kafka-broker stop
+service kafka-broker stop || true
 if [ -L  "/usr/lib/kafka/config" ]; then
 	rm -f /usr/lib/kafka/config
 fi
