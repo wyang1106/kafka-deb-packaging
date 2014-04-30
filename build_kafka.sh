@@ -66,6 +66,10 @@ function mkdeb() {
     -m "${USER}@${HOSTNAME}" \
     --deb-default ../../..//kafka-broker.default \
     --deb-upstart ../../..//kafka-broker \
+    --config-files /etc/kafka/log4j.properties \
+    --config-files /etc/kafka/server.properties \
+    --config-files /etc/kafka/producer.properties \
+    --config-files /etc/kafka/consumer.properties \
     --license "${license}" \
     --prefix=/ \
     -s dir \
