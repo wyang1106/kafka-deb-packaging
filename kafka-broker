@@ -10,8 +10,8 @@ stop on [!12345]
 respawn
 respawn limit 2 5
 
-env CONFIG_HOME="/etc/kafka"
-env KAFKA_HOME="/usr/lib/kafka"
+env KAFKA_CFG_DIR="/etc/kafka"
+env KAFKA_CFG_DIR="/usr/lib/kafka"
 env KAFKA_CFG_FILE="server.properties"
 
 umask 007
@@ -22,13 +22,14 @@ setuid kafka
 setgid kafka
 
 script
-  . /etc/default/kafka-broker
-
   # Set defaults
   export KAFKA_LOG4J_OPTS="-Dlog4j.configuration=file:${KAFKA_HOME}/config/log4j.properties"
   export KAFKA_HEAP_OPTS="-Xmx1G -Xms1G"
 
+  # Overwrite them with user specific
+  . /etc/default/kafka-broker
+
   if [ "x$START" = "xyes" ]; then
-    exec $KAFKA_HOME/bin/kafka-server-start.sh  $CONFIG_HOME/$KAFKA_CFG_FILE
+    exec $KAFKA_HOME/bin/kafka-server-start.sh  $KAFKA_CFG_DIR/$KAFKA_CFG_FILE
   fi
 end script
