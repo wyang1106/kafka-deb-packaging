@@ -1,7 +1,8 @@
 # /etc/default/kafka-broker
 
-# Uncomment to enable broker
-#START="yes"
+# Uncomment to enable broker.
+# This is by default enabled as we don not start this service after installation
+START="yes"
 
 #
 # Below settings are set as defaults, edit to suit your needs
