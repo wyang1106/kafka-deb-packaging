@@ -11,7 +11,7 @@ respawn
 respawn limit 2 5
 
 env KAFKA_CFG_DIR="/etc/kafka"
-env KAFKA_CFG_DIR="/usr/lib/kafka"
+env KAFKA_HOME="/usr/lib/kafka"
 env KAFKA_CFG_FILE="server.properties"
 
 umask 007
