@@ -1,0 +1,16 @@
+# /etc/default/kafka-broker
+
+# Uncomment to enable broker.
+# This is by default enabled as we don not start this service after installation
+START="yes"
+
+#
+# Below settings are set as defaults, edit to suit your needs
+# Exports are needed here to survive across multiple sh scripts that are being used
+
+#export KAFKA_HOME="/usr/lib/kafka"
+#export KAFKA_CFG_DIR="/etc/kafka"
+#export KAFKA_CFG_FILE="server.properties"
+#export KAFKA_LOG4J_OPTS="-Dlog4j.configuration=file:${KAFKA_HOME}/config/log4j.properties"
+#export KAFKA_HEAP_OPTS="-Xmx1G -Xms1G"
+

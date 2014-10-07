@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -e
+
+if ! getent group | grep -q kafka; then
+    groupadd -f kafka
+fi
+
+if ! getent passwd | grep -q kafka; then
+   useradd -r -d /var/run/kafka --shell /bin/false -g kafka kafka
+fi
+
+if [ ! -e "/usr/lib/kafka/config" ]; then
+    ln -s /etc/kafka /usr/lib/kafka/config
+fi
+
+if [ ! -e "/usr/lib/kafka/logs" ]; then
+    ln -s /var/log/kafka /usr/lib/kafka/logs
+fi
+
+mkdir -p /var/run/kafka
+chown -R kafka:kafka /var/run/kafka
+chown -R kafka:kafka /var/log/kafka

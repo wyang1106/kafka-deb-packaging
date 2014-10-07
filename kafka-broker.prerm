@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+service kafka-broker stop || true
+if [ -L  "/usr/lib/kafka/config" ]; then
+	rm -f /usr/lib/kafka/config
+fi
+
+if [ -L "/usr/lib/kafka/logs" ]; then
+	rm -f /usr/lib/kafka/logs
+fi
