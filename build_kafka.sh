@@ -78,6 +78,7 @@ function build_from_sources() {
     tar zxf "${ORIG_DIR}/${SRC_PACKAGE}"
     pushd "kafka-${VERSION}-src"
 
+    gradle wrapper
     ./gradlew -PscalaVersion=${SCALA_VERSION} clean
     ./gradlew -PscalaVersion=${SCALA_VERSION} jar
 
