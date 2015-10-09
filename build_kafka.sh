@@ -89,8 +89,10 @@ function build_from_sources() {
 
     ## populate the /opt/kafka folder structure
     # libs
-    cp -rp core/build/libs/* ../build/opt/kafka/libs
-    cp -rp core/build/dependant-libs-${SCALA_VERSION}/* ../build/opt/kafka/libs
+    cp -rp core ../build/opt/kafka/
+    cp -rp examples ../build/opt/kafka/
+    cp -rp contrib ../build/opt/kafka/
+    cp -rp clients ../build/opt/kafka/
     # config
     cp -rp config ../build/opt/kafka/
     mv ../build/opt/kafka/config/log4j.properties ../build/opt/kafka/config/log4j.properties.orig
