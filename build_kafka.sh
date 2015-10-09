@@ -3,7 +3,7 @@ set -e
 set -u
 
 PKG_NAME="kafka"
-VERSION="0.8.1"
+VERSION="0.8.2.1"
 DESCRIPTION="Apache Kafka is a distributed publish-subscribe messaging system."
 URL="https://kafka.apache.org/"
 ARCH="all"
@@ -13,7 +13,7 @@ SRC_PACKAGE="kafka-${VERSION}-src.tgz"
 DOWNLOAD_URL="https://dist.apache.org/repos/dist/release/kafka/${VERSION}/${SRC_PACKAGE}"
 ORIG_DIR="$(pwd)"
 BUILD_VERSION=
-SCALA_VERSION="2.8.0"
+SCALA_VERSION="2.10.4"
 
 usage() {
     echo "Usage: $0 -b \"<build version>\" -h"
